@@ -1,11 +1,10 @@
-package com.delebarre.simplephil.kafka.tutorial1.consumer;
+package kafka.tutorial1.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
-import org.apache.kafka.common.protocol.types.Field;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CountedCompleter;
 
 public class ConsumerDemoWithThreads {
     public static void main(String[] args) {
@@ -30,7 +28,7 @@ public class ConsumerDemoWithThreads {
         String topic = "first_topic";
 
         //latch for dealing with multiple threads
-        CountDownLatch latch= new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
 
         //create consumer runnable
         logger.info("Creating the consumer thread");
@@ -44,7 +42,7 @@ public class ConsumerDemoWithThreads {
         myThread.start();
 
         //add shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread(()-> {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("caught shutdown hook");
             ((ConsumerRunnable) myConsumerRunnable).shutdown();
             try {
@@ -67,21 +65,21 @@ public class ConsumerDemoWithThreads {
 
     public class ConsumerRunnable implements Runnable {
         private CountDownLatch latch;
-        private KafkaConsumer<String,String> consumer;
+        private KafkaConsumer<String, String> consumer;
         private Logger logger = LoggerFactory.getLogger(ConsumerRunnable.class);
 
 
         public ConsumerRunnable(String bootstrapServers,
-                              String group_id,
-                              String topic,
-                              CountDownLatch latch){
-            this.latch=latch;
+                                String group_id,
+                                String topic,
+                                CountDownLatch latch) {
+            this.latch = latch;
 
             Properties properties = new Properties();
-            properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
+            properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
             properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
             properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-            properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG,group_id);
+            properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, group_id);
             properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
             //create consumer
@@ -96,11 +94,11 @@ public class ConsumerDemoWithThreads {
         public void run() {
             // pull new data
             try {
-                while(true) {
-                    ConsumerRecords<String,String> records = consumer.poll(Duration.ofMillis(100));
-                    for(ConsumerRecord<String,String> record: records) {
-                        logger.info("Key: "+record.key() + ", Value: " + record.value());
-                        logger.info("Partition: "+record.partition() +", Offset: " + record.offset());
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                    for (ConsumerRecord<String, String> record : records) {
+                        logger.info("Key: " + record.key() + ", Value: " + record.value());
+                        logger.info("Partition: " + record.partition() + ", Offset: " + record.offset());
                     }
                 }
             } catch (WakeupException e) {
@@ -111,7 +109,7 @@ public class ConsumerDemoWithThreads {
             }
         }
 
-        public void shutdown(){
+        public void shutdown() {
             consumer.wakeup(); //to interrupt poll, throws WakeupException
         }
     }
