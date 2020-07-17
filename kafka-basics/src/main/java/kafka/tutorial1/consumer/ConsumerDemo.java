@@ -28,7 +28,7 @@ public class ConsumerDemo {
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
 
-        //creat e consumer
+        //create consumer
         KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(properties);
 
         // subscribe to topics
